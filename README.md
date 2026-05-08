@@ -25,6 +25,7 @@
 ```
 
 ## 📌 Latest Updates
+- **[2026-05-08]** Add training code for [metric-scale estimation](docs/train.md).
 - **[2026-03-09]** Add training code for [AMB3R](docs/train.md).
 - **[2026-03-02]** Add DepthAnything 3 for [benchmark](benchmark/README.md) and support [**AMB3R-VO (DA3)**](benchmark/README.md)
 - **[2026-02-28]** 📊 We have officially released the code for **AMB3R Benchmark**.

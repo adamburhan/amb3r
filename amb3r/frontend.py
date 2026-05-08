@@ -138,6 +138,7 @@ class FrontEnd(nn.Module):
         if self.metric_scale:
             median_pred_values_flat, _ = torch.median(predictions["depth"].view(Bs * nimgs, H * W), dim=1)
             median_pred_values_flat = median_pred_values_flat.view(Bs, nimgs, 1)
+            predictions['median_metric_z_log'] = median_z_log
             predictions["median_metric_z"] = median_z_log.exp()
 
             metric_scale = predictions["median_metric_z"] / (median_pred_values_flat + 1e-8) # Bs, nimgs, 1

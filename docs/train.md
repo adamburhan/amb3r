@@ -2,7 +2,7 @@
 
 This section provides the instructions and details of dataset for training the AMB3R model.
 
-### Training data
+### Training Data
 
  AMB3R is trained on a mixture of 11 datasets. For each training epoch. we sample a total of **2,000 samples** , where each sample consists of **5 to 16 frames**. The sampling distribution across different scene types is balanced as follows: 
 
@@ -17,6 +17,8 @@ We provide an example ScanNet dataset class in `data/scannet.py`, which is alrea
 
 
 ### Training Instruction
+
+#### AMB3R Training
 
 1. Download the pretrained VGGT weights and place it under `./checkpoints/VGGT.pt`
 
@@ -35,4 +37,18 @@ If you plan to train the model for other tasks from scratch, you can use the upd
 ```sh
 torchrun --nproc_per_node $num_gpus train.py --batch_size $batch_size --interp_v2
 ```
+
+
+
+#### Metric-scale Estimator Training
+
+Once you finish the training of amb3r, you can launch the following script for training metric-scale estimator:
+
+```sh
+torchrun --nproc_per_node $num_gpus train_metric.py --pretrained $path_to_your_best_ckpt
+```
+
+
+
+#### 
 
