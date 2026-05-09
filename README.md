@@ -25,9 +25,10 @@
 ```
 
 ## 📌 Latest Updates
+- **[2026-05-09]** Add code for [visualization](visualizer.ipynb).
 - **[2026-05-08]** Add training code for [metric-scale estimation](docs/train.md).
 - **[2026-03-09]** Add training code for [AMB3R](docs/train.md).
-- **[2026-03-02]** Add DepthAnything 3 for [benchmark](benchmark/README.md) and support [**AMB3R-VO (DA3)**](benchmark/README.md)
+- **[2026-03-02]** Add DepthAnything 3 for [benchmark](benchmark/README.md) and support [**AMB3R-VO (DA3)**](benchmark/README.md).
 - **[2026-02-28]** 📊 We have officially released the code for **AMB3R Benchmark**.
 - **[2026-02-24]** 🗺️ We have officially released the code for **AMB3R-SfM**.
 - **[2026-02-21]** 🏎️ We have officially released the code for **AMB3R-VO**.
@@ -172,6 +173,20 @@ Please refer to [benchmark/README.md](benchmark/README.md) for the benchmark det
 ## 🎓 Training
 
 Please refer to [docs/train.md](docs/train.md) for the training details.
+
+
+
+## Visualizer
+
+Your can use [visualizer.ipynb](visualizer.ipynb) to load .npz from AMB3R-VO/SfM to create the video as in our project page.
+
+**Controls:**
+
+- **C** : Place a new camera
+- **Z** : Undo last camera
+- **L** : loop the first and last camera
+- **P** : Play the preview
+- **Q** : Quit and render the sequence
 
 ---
 

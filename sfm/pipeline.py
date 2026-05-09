@@ -70,7 +70,7 @@ class AMB3R_SfM():
             'conf': res['world_points_conf'][0].cpu(), # T, H, W
             'pose': res['pose'][0].cpu(), # T, 4, 4
         }
-        cluster_prediction['conf_sig'] = (cluster_prediction['conf'] - 1) / cluster_prediction['conf']
+        cluster_prediction['conf_sig'] = (cluster_prediction['conf'] - 1) / cluster_prediction['conf'].clamp(min=1e-6)
         cluster_prediction['conf_mean'] = cluster_prediction['conf_sig'].mean()
         cluster_prediction['conf_sig_mean'] = cluster_prediction['conf_sig'].mean()
 
@@ -109,7 +109,7 @@ class AMB3R_SfM():
             'pts': res['world_points'][0].cpu(),
             'conf': conf,
             'pose': res['pose'][0].cpu(),
-            'conf_sig': (conf - 1) / conf,
+            'conf_sig': (conf - 1) / conf.clamp(min=1e-6),
             'idx': idx_to_map,
             'iter': torch.ones(len(idx_to_map)),
         }

@@ -75,7 +75,7 @@ class SfMemory():
             conf_final = predictions['conf_sig'] * predictions['iter'][:, None, None]
 
             conf_sum = conf_final + conf_sig_reordered
-            conf_sum[conf_sum == 0] = 1e-6
+            conf_sum[~torch.isfinite(conf_sum) | (conf_sum == 0)] = 1e-6
 
             predictions['pts'] = (predictions['pts'] * conf_final.unsqueeze(-1) + pts_reordered_scaled * conf_sig_reordered.unsqueeze(-1)) / conf_sum.unsqueeze(-1)
 
@@ -188,8 +188,9 @@ class SfMemory():
 
         conf_global_sum = conf_global * iter_global[:, None, None]
 
+        denom = (conf_global_sum[..., None] + conf_local[..., None]).clamp(min=1e-8)
         self.pts[idx] = (conf_global_sum[..., None] * pts_global +
-                         conf_local[..., None] * pts_aligned) / (conf_global_sum[..., None] + conf_local[..., None])
+                         conf_local[..., None] * pts_aligned) / denom
         self.conf[idx] = (conf_global_sum + conf_local) / (iter_global[:, None, None] + 1)
         self.iter[idx] = iter_global + 1
 
@@ -205,7 +206,7 @@ class SfMemory():
         pts_local = res['world_points'][0].cpu()
         pose_local = res['pose'][0].cpu()
         conf_local = res['world_points_conf'][0].cpu()
-        conf_sig_local = (conf_local - 1) / conf_local
+        conf_sig_local = (conf_local - 1) / conf_local.clamp(min=1e-6)
         map_idx_ori = map_idx.copy()
 
         # Align local coordinate system to global

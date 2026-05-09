@@ -8,7 +8,7 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(_
 sys.path.append(PROJECT_ROOT)
 sys.path.append(os.path.join(PROJECT_ROOT, 'thirdparty'))
 
-from segformer.model import EncoderDecoder
+
 
 
 def _suppress_runtime_warnings(func):
@@ -325,6 +325,7 @@ def get_sky_mask(images, chunk_size=20, segformer_path='./checkpoints/segformer.
     Returns:
         - sky_mask (np.ndarray): A boolean mask of shape (T, H, W) where True indicates sky pixels.
     '''
+    from segformer.model import EncoderDecoder
     segformer = EncoderDecoder()
     segformer.load_state_dict(torch.load(segformer_path, map_location=torch.device('cpu'), weights_only=False)['state_dict'])
     segformer.cuda()
