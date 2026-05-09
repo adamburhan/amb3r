@@ -37,7 +37,6 @@
 <details>
 <summary><b>🔜 TODOs / Upcoming</b></summary>
 
-- [ ] visualizer for AMB3R
 - [ ] support of various foundation models for AMB3R-VO and AMB3R-SfM
 
 </details>
