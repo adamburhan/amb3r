@@ -24,7 +24,7 @@ def get_args_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument('--results_path', type=str, default="./outputs/mvdepth")
     parser.add_argument('--metric', action='store_true')
-    parser.add_argument('--model_name', type=str, default="amb3r", choices=['amb3r', 'da3'])
+    parser.add_argument('--model_name', type=str, default="amb3r", choices=['amb3r', 'da3', 'omega'])
     parser.add_argument('--ckpt_path', type=str, default="../checkpoints/amb3r.pt")
     return parser
 
@@ -46,14 +46,16 @@ def main(args):
             alignment=None if metric_scale else 'median',
         )
 
+    eval_size = (384, 512) if args.model_name == 'omega' else (392, 518)
+
     with torch.autocast(device_type='cuda', dtype=torch.bfloat16):
         results = evaluation(
                 model=model,
-                eth3d_size=(392, 518),
-                kitti_size=(392, 518),
-                dtu_size=(392, 518),
-                scannet_size=(392, 518),
-                tanks_and_temples_size=(392, 518))
+                eth3d_size=eval_size,
+                kitti_size=eval_size,
+                dtu_size=eval_size,
+                scannet_size=eval_size,
+                tanks_and_temples_size=eval_size)
 
 
 if __name__ == "__main__":

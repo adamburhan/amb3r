@@ -23,7 +23,7 @@ def get_args_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument('--data_path', type=str, default="../data/")
     parser.add_argument('--results_path', type=str, default="./outputs/sfm")
-    parser.add_argument('--model_name', type=str, default="amb3r", choices=['amb3r', 'da3'])
+    parser.add_argument('--model_name', type=str, default="amb3r", choices=['amb3r', 'da3', 'omega'])
     parser.add_argument('--ckpt_path', type=str, default="../checkpoints/amb3r.pt")
     parser.add_argument('--num_iters', type=int, default=5)
     parser.add_argument('--target_point_count', type=int, default=3_000_000)
@@ -39,16 +39,17 @@ pipeline = AMB3R_SfM(model, cfg_path='../sfm/sfm_config.yaml')
 
 os.makedirs(args.results_path, exist_ok=True)
 
+sfm_size = (512, 384) if args.model_name == 'omega' else (518, 392)
 eval_datasets_all = {
     'eth3d': Eth3d(ROOT=args.data_path + 'rmvd/eth3d',
-             resolution=(518, 392), kf_every=1, full_video=True),
-    'tnt_training': Tnt(ROOT=args.data_path + 'sfm/tnt', resolution=(518, 392),
+             resolution=sfm_size, kf_every=1, full_video=True),
+    'tnt_training': Tnt(ROOT=args.data_path + 'sfm/tnt', resolution=sfm_size,
            kf_every=1, scene_folder='training', full_video=True),
-    'tnt_intermediate': Tnt(ROOT=args.data_path + 'sfm/tnt', resolution=(518, 392),
+    'tnt_intermediate': Tnt(ROOT=args.data_path + 'sfm/tnt', resolution=sfm_size,
            kf_every=1, scene_folder='intermediate', full_video=True),
-    'tnt_advanced': Tnt(ROOT=args.data_path + 'sfm/tnt', resolution=(518, 392),
+    'tnt_advanced': Tnt(ROOT=args.data_path + 'sfm/tnt', resolution=sfm_size,
            kf_every=1, scene_folder='advanced', full_video=True),
-    'imc': Imc(ROOT=args.data_path + 'sfm/imc', resolution=(518, 392),
+    'imc': Imc(ROOT=args.data_path + 'sfm/imc', resolution=sfm_size,
            kf_every=1, scene_folder='test'),
 }
 

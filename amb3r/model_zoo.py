@@ -5,20 +5,24 @@ import torch.nn as nn
 import numpy as np
 from .model import AMB3R
 
-sys.path.append(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'thirdparty'))
+_THIRDPARTY = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'thirdparty')
+sys.path.append(_THIRDPARTY)
 
 def load_model(model_name, ckpt_path=None):
     if model_name == 'amb3r':
         model = AMB3R()
         if ckpt_path is not None:
             model.load_weights(ckpt_path)
-    
+
     elif model_name == 'da3':
         model = DA3(ckpt_path=ckpt_path) if ckpt_path is not None else DA3()
 
+    elif model_name == 'omega':
+        model = VGGT_Omega(ckpt_path=ckpt_path)
+
     else:
         raise ValueError(f"Unsupported model name: {model_name}")
-    
+
     return model
 
 
@@ -179,3 +183,142 @@ class DA3(nn.Module):
         return self.forward(frames)
 
 
+class VGGT_Omega(nn.Module):
+    def __init__(self, device='cuda', ckpt_path=None, image_resolution=512):
+        super().__init__()
+
+        vggt_omega_path = os.path.join(_THIRDPARTY, 'vggt-omega')
+        if vggt_omega_path not in sys.path:
+            sys.path.insert(0, vggt_omega_path)
+
+        from vggt_omega.models import VGGTOmega
+        from vggt_omega.utils.pose_enc import pose_encoding_to_extri_intri
+
+        self.model = VGGTOmega().eval().to(device)
+        if ckpt_path is not None:
+            state_dict = torch.load(ckpt_path, map_location='cpu')
+            self.model.load_state_dict(state_dict)
+
+        self._pose_encoding_to_extri_intri = pose_encoding_to_extri_intri
+        self.device = device
+        self.name = 'vggt_omega'
+
+    def _unproject_depth(self, depth, extrinsic, intrinsic):
+        # depth:     (B, N, H, W)
+        # extrinsic: (B, N, 3, 4)  w2c
+        # intrinsic: (B, N, 3, 3)
+        B, N, H, W = depth.shape
+        dev = depth.device
+
+        y, x = torch.meshgrid(
+            torch.arange(H, device=dev, dtype=depth.dtype),
+            torch.arange(W, device=dev, dtype=depth.dtype),
+            indexing='ij',
+        )
+
+        fx = intrinsic[:, :, 0, 0, None, None]
+        fy = intrinsic[:, :, 1, 1, None, None]
+        cx = intrinsic[:, :, 0, 2, None, None]
+        cy = intrinsic[:, :, 1, 2, None, None]
+
+        cam_pts = torch.stack([
+            (x - cx) / fx * depth,
+            (y - cy) / fy * depth,
+            depth,
+        ], dim=-1)  # (B, N, H, W, 3)
+
+        R_T = extrinsic[:, :, :3, :3].transpose(-1, -2)          # (B, N, 3, 3)
+        t   = extrinsic[:, :, :3,  3][:, :, None, None, :]       # (B, N, 1, 1, 3)
+
+        return torch.einsum('bnij,bnhwj->bnhwi', R_T, cam_pts - t)  # (B, N, H, W, 3)
+
+    def forward(self, frames):
+        images = frames['images'].to(self.device)   # (B, T, C, H, W)  in [-1, 1]
+        images = (images + 1.0) / 2.0               # -> [0, 1] for VGGT-Omega
+
+        with torch.inference_mode():
+            predictions = self.model(images)
+
+        extrinsic, intrinsic = self._pose_encoding_to_extri_intri(
+            predictions['pose_enc'],
+            predictions['images'].shape[-2:],
+        )
+        # extrinsic: (B, N, 3, 4) w2c;  intrinsic: (B, N, 3, 3)
+
+        depth = predictions['depth'][..., 0]        # (B, N, H, W)
+        depth_conf = predictions['depth_conf']      # (B, N, H, W)
+
+        world_points = self._unproject_depth(depth, extrinsic, intrinsic)  # (B, N, H, W, 3)
+
+        # Build c2w (4x4) by inverting w2c
+        B, N = extrinsic.shape[:2]
+        bottom = torch.tensor([[0, 0, 0, 1]], dtype=extrinsic.dtype, device=extrinsic.device)
+        bottom = bottom.view(1, 1, 1, 4).expand(B, N, -1, -1)
+        w2c = torch.cat([extrinsic, bottom], dim=2)     # (B, N, 4, 4)
+        c2w = torch.linalg.inv(w2c)                     # (B, N, 4, 4)
+
+        return {
+            'world_points': world_points.float(),           # (B, N, H, W, 3)
+            'world_points_conf': depth_conf.float(),        # (B, N, H, W)
+            'depth': depth.float(),                         # (B, N, H, W)
+            'pose': c2w.float(),                            # (B, N, 4, 4)
+            'pts3d_by_unprojection': world_points.float(),  # (B, N, H, W, 3)
+        }
+
+    def input_adapter(self, images, keyview_idx, poses=None, intrinsics=None, depth_range=None):
+        def select_by_index(l, idx):
+            if isinstance(idx, int):
+                return l[idx]
+            ret = []
+            for batch_idx, i in enumerate(idx):
+                ret.append(l[i][batch_idx])
+            return np.stack(ret, 0) if isinstance(ret[0], np.ndarray) else torch.stack(ret, 0)
+
+        def exclude_index(l, exclude_idx):
+            if isinstance(exclude_idx, int):
+                return [ele for idx, ele in enumerate(l) if idx != exclude_idx]
+            ret = []
+            for batch_idx, ei in enumerate(exclude_idx):
+                ret.append([ele[batch_idx] for idx, ele in enumerate(l) if idx != ei])
+            transposed = list(zip(*ret))
+            return [np.stack(e, 0) for e in transposed] if isinstance(transposed[0][0], np.ndarray) \
+                else [torch.stack(e, 0) for e in transposed]
+
+        image_key = select_by_index(images, keyview_idx)
+        images_source = exclude_index(images, keyview_idx)
+        imgs = np.stack([image_key] + images_source, axis=1) / 255.0  # (B, N, H, W, 3) in [0,1]
+        imgs = (imgs * 2.0 - 1.0).astype(np.float32)                  # -> [-1, 1]
+        imgs = torch.from_numpy(imgs)
+        if imgs.shape[-1] == 3:
+            imgs = imgs.permute(0, 1, 4, 2, 3)  # (B, N, C, H, W)
+
+        return {'frames': {'images': imgs.to(self.device), 'keyview_idx': keyview_idx}}
+
+    def output_adapter(self, model_output):
+        depth = model_output['depth'][:, 0].cpu().numpy()  # (B, H, W), keyview is index 0
+        return {'depth': depth[None]}, {}                  # (1, B, H, W) → (1,1,H,W) when B=1
+
+    def run_amb3r_benchmark(self, frames):
+        return self.forward(frames)
+
+    @torch.inference_mode()
+    def run_amb3r_vo(self, frames, cfg, keyframe_memory):
+        return self.forward(frames)
+
+    @torch.inference_mode()
+    def extract_amb3r_sfm_features(self, views):
+        images = views['images'].to(self.device)  # (B, N, 3, H, W) in [-1, 1]
+        images = (images + 1.0) / 2.0             # -> [0, 1]
+        B, N, C, H, W = images.shape
+        agg = self.model.aggregator
+        imgs_flat = images.view(B * N, C, H, W)
+        imgs_flat = (imgs_flat - agg._resnet_mean.view(1, 3, 1, 1)) / agg._resnet_std.view(1, 3, 1, 1)
+        patch_tokens = agg.patch_embed(imgs_flat)
+        if isinstance(patch_tokens, dict):
+            patch_tokens = patch_tokens['x_norm_patchtokens']
+        # (B*N, num_patches, C) -> mean over patches -> (B*N, C)
+        return patch_tokens.mean(dim=1).float()
+
+    @torch.inference_mode()
+    def run_amb3r_sfm(self, frames, cfg, keyframe_memory=None, benchmark_conf0=None):
+        return self.forward(frames)

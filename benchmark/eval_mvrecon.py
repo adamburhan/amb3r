@@ -21,7 +21,7 @@ def get_args_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument('--data_path', type=str, default="../data/rmvd/")
     parser.add_argument('--results_path', type=str, default="./outputs/mvrecon")
-    parser.add_argument('--model_name', type=str, default="amb3r", choices=['amb3r', 'da3'])
+    parser.add_argument('--model_name', type=str, default="amb3r", choices=['amb3r', 'da3', 'omega'])
     parser.add_argument('--ckpt_path', type=str, default="../checkpoints/amb3r.pt")
     parser.add_argument('--pts_by_unprojection', type=bool, default=True)
     return parser
@@ -34,11 +34,11 @@ model.cuda()
 
 os.makedirs(args.results_path, exist_ok=True)
 
+recon_size = (512, 384) if args.model_name == 'omega' else (518, 392)
 eval_datasets_all = {
-    '7scenes': SevenScenes(split='test', ROOT=args.data_path + '7scenes', resolution=(518, 392), num_seq=1, full_video=True, kf_every=40),
-    'eth3d': Eth3d(ROOT=args.data_path + 'eth3d', resolution=(518, 392), rmvd_split=True),
-    'dtu': Dtu(ROOT=args.data_path + 'dtu_with_poses', resolution=(518, 392)),
-
+    '7scenes': SevenScenes(split='test', ROOT=args.data_path + '7scenes', resolution=recon_size, num_seq=1, full_video=True, kf_every=40),
+    'eth3d': Eth3d(ROOT=args.data_path + 'eth3d', resolution=recon_size, rmvd_split=True),
+    'dtu': Dtu(ROOT=args.data_path + 'dtu_with_poses', resolution=recon_size),
 }
 
 for demo_name, data in eval_datasets_all.items():

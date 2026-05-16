@@ -27,7 +27,7 @@ def get_args_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument('--data_path', type=str, default="../data/marigold_data/")
     parser.add_argument('--results_path', type=str, default="./outputs/mono")
-    parser.add_argument('--model_name', type=str, default="amb3r", choices=['amb3r', 'da3'])
+    parser.add_argument('--model_name', type=str, default="amb3r", choices=['amb3r', 'da3', 'omega'])
     parser.add_argument('--ckpt_path', type=str, default="../checkpoints/amb3r.pt")
     return parser
 
@@ -165,7 +165,8 @@ for dataset_name, config in datasets_config.items():
     for batch in tqdm(dataloader, desc=f"Inferencing on {dataset.disp_name}", leave=True):
         # rgb_int 
         rgb_float = batch["rgb_int"] / 255.0  # [B, 3, H, W]
-        rgb_resized = resize_rgb_int_cv2(rgb_float, max_res=518, divisible_by=14, target_resolution=(392, 518))  # [B, 3, H, W]
+        mono_res = (384, 512) if args.model_name == 'omega' else (392, 518)
+        rgb_resized = resize_rgb_int_cv2(rgb_float, max_res=518, divisible_by=14, target_resolution=mono_res)  # [B, 3, H, W]
         rgb_resized = rgb_resized * 2 - 1  # [B, 3, H, W]
 
         gt_depth_ts = batch["depth_raw_linear"].squeeze().cuda()

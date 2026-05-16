@@ -1,3 +1,5 @@
+
+
 # AMB3R Benchmark
 
 This is the benchmark that supplies AMB3R paper on various 3D reconstruction tasks.
@@ -74,17 +76,30 @@ This is the benchmark that supplies AMB3R paper on various 3D reconstruction tas
       <td align="center">78.7</td>
     </tr>
     <tr>
+      <td align="left">VGGT-Omega</td>
+      <td align="center">3.7</td>
+      <td align="center">98.0</td>
+      <td align="center">7.4</td>
+      <td align="center"><strong>95.4</strong></td>
+      <td align="center"><strong>1.9</strong></td>
+      <td align="center"><strong>99.6</strong></td>
+      <td align="center">4.5</td>
+      <td align="center">97.1</td>
+      <td align="center"><strong>24.2</strong></td>
+      <td align="center">82.5</td>
+    </tr>
+    <tr>
       <td align="left"><strong>AMB3R </strong></td>
       <td align="center"><strong>3.0</strong></td>
       <td align="center"><strong>98.9</strong></td>
       <td align="center"><strong>7.3</strong></td>
       <td align="center"><strong>95.4</strong></td>
-      <td align="center"><strong>3.2</strong></td>
-      <td align="center"><strong>98.8</strong></td>
+      <td align="center">3.2</td>
+      <td align="center">98.8</td>
       <td align="center"><strong>2.7</strong></td>
       <td align="center"><strong>98.9</strong></td>
-      <td align="center"><strong>24.7</strong></td>
-      <td align="center"><strong>80.7</strong></td>
+      <td align="center">24.7</td>
+      <td align="center">80.7</td>
     </tr>
   </tbody>
 </table>
@@ -112,8 +127,9 @@ python eval_monodepth.py
   <thead>
     <tr>
       <th align="left"><strong>Dataset</strong></th>
-      <th align="center"><strong>VGGT</strong></th>
-      <th align="center">DA3 (NESTEDGIANT)</th>
+      <th align="center" style="font-weight: normal;">VGGT</th>
+      <th align="center" style="font-weight: normal;">DA3 (NESTEDGIANT)</th>
+      <th align="center" style="font-weight: normal;">VGGT-Omega</th>
       <th align="center"><strong>AMB3R</strong></th>
     </tr>
   </thead>
@@ -121,6 +137,7 @@ python eval_monodepth.py
     <tr>
       <td align="left">mAA_30</td>
       <td align="center">81.8</td>
+      <td align="center"><strong>87.5</strong></td>
       <td align="center"><strong>87.5</strong></td>
       <td align="center">86.3</td>
     </tr>
@@ -203,13 +220,28 @@ python eval_pose.py
       <td align="center">81.0</td>
     </tr>
     <tr>
+      <td align="left">VGGT-Omega</td>
+      <td align="center">3.0</td>
+      <td align="center">70.8</td>
+      <td align="center">2.8</td>
+      <td align="center">76.1</td>
+      <td align="center"><strong>1.2</strong></td>
+      <td align="center"><strong>93.4</strong></td>
+      <td align="center">1.3</td>
+      <td align="center">92.5</td>
+      <td align="center">1.9</td>
+      <td align="center">88.2</td>
+      <td align="center">2.0</td>
+      <td align="center">84.2</td>
+    </tr>
+    <tr>
       <td align="left"><strong>AMB3R </strong></td>
       <td align="center"><strong>2.8</strong></td>
       <td align="center"><strong>74.4</strong></td>
       <td align="center"><strong>1.9</strong></td>
       <td align="center"><strong>85.8</strong></td>
-      <td align="center"><strong>1.4</strong></td>
-      <td align="center"><strong>90.9</strong></td>
+      <td align="center">1.4</td>
+      <td align="center">90.9</td>
       <td align="center"><strong>0.9</strong></td>
       <td align="center">95.1</td>
       <td align="center"><strong>1.7</strong></td>
@@ -307,10 +339,22 @@ python eval_videodepth.py
       <td align="center">2.56</td>
     </tr>
     <tr>
+      <td align="left">VGGT-Omega</td>
+      <td align="center"><strong>3.57</strong></td>
+      <td align="center"><strong>7.26</strong></td>
+      <td align="center"><strong>7.47</strong></td>
+      <td align="center">1.53</td>
+      <td align="center">0.41</td>
+      <td align="center">0.27</td>
+      <td align="center">6.11</td>
+      <td align="center">2.45</td>
+      <td align="center">2.52</td>
+    </tr>
+    <tr>
       <td align="left"><strong>AMB3R </strong></td>
-      <td align="center"><strong>4.64</strong></td>
-      <td align="center"><strong>9.98</strong></td>
-      <td align="center"><strong>9.69</strong></td>
+      <td align="center">4.64</td>
+      <td align="center">9.98</td>
+      <td align="center">9.69</td>
       <td align="center"><strong>0.81</strong></td>
       <td align="center"><strong>0.22</strong></td>
       <td align="center"><strong>0.08</strong></td>
@@ -320,6 +364,7 @@ python eval_videodepth.py
     </tr>
   </tbody>
 </table>
+
 
 ### Data Preparation
 We evaluate on the **ETH3D**, **DTU**, and **7Scenes** datasets.
@@ -452,6 +497,21 @@ python eval_mvrecon.py
       <td align="center"><strong>0.7</strong></td>
       <td align="center"><strong>2.6</strong></td>
     </tr>
+    <tr>
+      <td align="left"><strong>AMB3R-VO (VGGT-Omega)</strong></td>
+      <td align="center">&#10007;</td>
+      <td align="center">&#10007;</td>
+      <td align="center">9.0</td>
+      <td align="center">3.0</td>
+      <td align="center">3.9</td>
+      <td align="center">6.2</td>
+      <td align="center">3.2</td>
+      <td align="center">11.5</td>
+      <td align="center">2.4</td>
+      <td align="center">5.7</td>
+      <td align="center">1.0</td>
+      <td align="center">5.1</td>
+    </tr>
   </tbody>
 </table>
 
@@ -472,6 +532,153 @@ python eval_slam.py
 ---
 
 ## Structure from Motion (SfM)
+
+<table>
+  <thead>
+    <tr>
+      <th rowspan="2" align="left"><strong>Scenes</strong></th>
+      <th colspan="2" align="center" style="font-weight: normal;">MASt3R-SfM</th>
+      <th colspan="2" align="center"><strong>AMB3R-SfM</strong></th>
+      <th colspan="2" align="center"><strong>AMB3R-SfM (VGGT-omega)</strong></th>
+    </tr>
+    <tr>
+      <th align="center"><strong>RRA@5</strong></th>
+      <th align="center"><strong>RTA@5</strong></th>
+      <th align="center"><strong>RRA@5</strong></th>
+      <th align="center"><strong>RTA@5</strong></th>
+      <th align="center"><strong>RRA@5</strong></th>
+      <th align="center"><strong>RTA@5</strong></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td align="left">courtyard</td>
+      <td align="center">89.8</td>
+      <td align="center">64.4</td>
+      <td align="center"><strong>100.0</strong></td>
+      <td align="center">96.5</td>
+      <td align="center"><strong>100.0</strong></td>
+      <td align="center"><strong>98.5</strong></td>
+    </tr>
+    <tr>
+      <td align="left">delivery area</td>
+      <td align="center">83.1</td>
+      <td align="center">81.8</td>
+      <td align="center">91.0</td>
+      <td align="center">76.6</td>
+      <td align="center"><strong>100.0</strong></td>
+      <td align="center"><strong>92.2</strong></td>
+    </tr>
+    <tr>
+      <td align="left">electro</td>
+      <td align="center"><strong>100.0</strong></td>
+      <td align="center"><strong>95.5</strong></td>
+      <td align="center">95.6</td>
+      <td align="center">81.2</td>
+      <td align="center"><strong>100.0</strong></td>
+      <td align="center">94.1</td>
+    </tr>
+    <tr>
+      <td align="left">facade</td>
+      <td align="center">74.3</td>
+      <td align="center">75.3</td>
+      <td align="center"><strong>100.0</strong></td>
+      <td align="center">95.4</td>
+      <td align="center"><strong>100.0</strong></td>
+      <td align="center"><strong>95.7</strong></td>
+    </tr>
+    <tr>
+      <td align="left">kicker</td>
+      <td align="center"><strong>100.0</strong></td>
+      <td align="center"><strong>100.0</strong></td>
+      <td align="center"><strong>100.0</strong></td>
+      <td align="center">99.2</td>
+      <td align="center"><strong>100.0</strong></td>
+      <td align="center">99.8</td>
+    </tr>
+    <tr>
+      <td align="left">meadow</td>
+      <td align="center">58.1</td>
+      <td align="center">58.1</td>
+      <td align="center"><strong>100.0</strong></td>
+      <td align="center">95.2</td>
+      <td align="center"><strong>100.0</strong></td>
+      <td align="center"><strong>100.0</strong></td>
+    </tr>
+    <tr>
+      <td align="left">office</td>
+      <td align="center"><strong>100.0</strong></td>
+      <td align="center"><strong>98.5</strong></td>
+      <td align="center"><strong>100.0</strong></td>
+      <td align="center">53.9</td>
+      <td align="center"><strong>100.0</strong></td>
+      <td align="center">84.3</td>
+    </tr>
+    <tr>
+      <td align="left">pipes</td>
+      <td align="center"><strong>100.0</strong></td>
+      <td align="center"><strong>100.0</strong></td>
+      <td align="center"><strong>100.0</strong></td>
+      <td align="center">87.9</td>
+      <td align="center"><strong>100.0</strong></td>
+      <td align="center">96.7</td>
+    </tr>
+    <tr>
+      <td align="left">playground</td>
+      <td align="center"><strong>100.0</strong></td>
+      <td align="center">93.6</td>
+      <td align="center">98.7</td>
+      <td align="center">62.2</td>
+      <td align="center"><strong>100.0</strong></td>
+      <td align="center"><strong>98.2</strong></td>
+    </tr>
+    <tr>
+      <td align="left">relief</td>
+      <td align="center">34.2</td>
+      <td align="center">40.2</td>
+      <td align="center"><strong>100.0</strong></td>
+      <td align="center">90.1</td>
+      <td align="center"><strong>100.0</strong></td>
+      <td align="center"><strong>93.8</strong></td>
+    </tr>
+    <tr>
+      <td align="left">relief 2</td>
+      <td align="center">57.4</td>
+      <td align="center">76.1</td>
+      <td align="center"><strong>100.0</strong></td>
+      <td align="center">75.7</td>
+      <td align="center"><strong>100.0</strong></td>
+      <td align="center"><strong>93.8</strong></td>
+    </tr>
+    <tr>
+      <td align="left">terrace</td>
+      <td align="center"><strong>100.0</strong></td>
+      <td align="center"><strong>100.0</strong></td>
+      <td align="center"><strong>100.0</strong></td>
+      <td align="center">97.2</td>
+      <td align="center"><strong>100.0</strong></td>
+      <td align="center">99.2</td>
+    </tr>
+    <tr>
+      <td align="left">terrains</td>
+      <td align="center">58.2</td>
+      <td align="center">52.5</td>
+      <td align="center">91.6</td>
+      <td align="center">53.8</td>
+      <td align="center"><strong>100.0</strong></td>
+      <td align="center"><strong>83.9</strong></td>
+    </tr>
+    <tr>
+      <td align="left"><strong>Average</strong></td>
+      <td align="center">81.2</td>
+      <td align="center">79.7</td>
+      <td align="center">98.2</td>
+      <td align="center">81.9</td>
+      <td align="center"><strong>100.0</strong></td>
+      <td align="center"><strong>94.6</strong></td>
+    </tr>
+  </tbody>
+</table>
 
 ### Data Preparation
 We evaluate on the **ETH3D**, **Tanks and Temples (TnT)**, and **IMC Phototourism** datasets.
