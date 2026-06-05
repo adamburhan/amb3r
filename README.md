@@ -25,6 +25,7 @@
 ```
 
 ## 📌 Latest Updates
+- **[2026-06-05]** Add Déjà View for [benchmark](benchmark/README.md) and support Déjà View for  [**AMB3R-VO/SfM**](benchmark/README.md)
 - **[2026-05-16]** Add VGGT-Omega for [benchmark](benchmark/README.md) and support VGGT-Omega for  [**AMB3R-VO/SfM**](benchmark/README.md)
 - **[2026-05-09]** Add code for [visualization](visualizer.ipynb).
 - **[2026-05-08]** Add training code for [metric-scale estimation](docs/train.md).

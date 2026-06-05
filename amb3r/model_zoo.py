@@ -20,6 +20,9 @@ def load_model(model_name, ckpt_path=None):
     elif model_name == 'omega':
         model = VGGT_Omega(ckpt_path=ckpt_path)
 
+    elif model_name == 'dvlt':
+        model = DVLTWrapper(ckpt_path=ckpt_path)
+
     else:
         raise ValueError(f"Unsupported model name: {model_name}")
 
@@ -317,6 +320,133 @@ class VGGT_Omega(nn.Module):
         if isinstance(patch_tokens, dict):
             patch_tokens = patch_tokens['x_norm_patchtokens']
         # (B*N, num_patches, C) -> mean over patches -> (B*N, C)
+        return patch_tokens.mean(dim=1).float()
+
+    @torch.inference_mode()
+    def run_amb3r_sfm(self, frames, cfg, keyframe_memory=None, benchmark_conf0=None):
+        return self.forward(frames)
+
+
+class DVLTWrapper(nn.Module):
+    def __init__(self, device='cuda', ckpt_path=None, img_size=504):
+        super().__init__()
+
+        try:
+            from dvlt.model.dvlt.model import DVLT
+            from dvlt.common.constants import DataField
+        except ImportError:
+            raise ImportError("DVLT not found. Please ensure dvlt is installed in thirdparty/dvlt")
+
+        dvlt_wrapper = DVLT(img_size=img_size)
+        self.model = dvlt_wrapper.model  # the actual DVLTModel (nn.Module)
+        if ckpt_path is not None and ckpt_path != 'None':
+            with open(ckpt_path, 'rb') as f:
+                magic = f.read(8)
+            if magic[:1] == b'\xd8' or ckpt_path.endswith('.safetensors'):
+                from safetensors.torch import load_file
+                state_dict = load_file(ckpt_path, device='cpu')
+            else:
+                state_dict = torch.load(ckpt_path, map_location='cpu')
+                if 'model' in state_dict and isinstance(state_dict['model'], dict):
+                    state_dict = state_dict['model']
+            self.model.load_state_dict(state_dict, strict=True)
+
+        self.model.eval().to(device)
+        self.device = device
+        self.name = 'dvlt'
+        self.img_size = img_size
+        self.DataField = DataField
+
+    def input_adapter(self, images, keyview_idx, poses=None, intrinsics=None, depth_range=None):
+        def select_by_index(l, idx):
+            if isinstance(idx, int):
+                return l[idx]
+            ret = []
+            for batch_idx, i in enumerate(idx):
+                ret.append(l[i][batch_idx])
+            return np.stack(ret, 0) if isinstance(ret[0], np.ndarray) else torch.stack(ret, 0)
+
+        def exclude_index(l, exclude_idx):
+            if isinstance(exclude_idx, int):
+                return [ele for idx, ele in enumerate(l) if idx != exclude_idx]
+            ret = []
+            for batch_idx, ei in enumerate(exclude_idx):
+                ret.append([ele[batch_idx] for idx, ele in enumerate(l) if idx != ei])
+            transposed = list(zip(*ret))
+            return [np.stack(e, 0) for e in transposed] if isinstance(transposed[0][0], np.ndarray) \
+                else [torch.stack(e, 0) for e in transposed]
+
+        image_key = select_by_index(images, keyview_idx)
+        images_source = exclude_index(images, keyview_idx)
+        # Stack and normalize to [-1, 1] (benchmark convention)
+        imgs = np.stack([image_key] + images_source, axis=1) / 255.0  # (B, N, H, W, 3) in [0,1]
+        imgs = (imgs * 2.0 - 1.0).astype(np.float32)
+        imgs = torch.from_numpy(imgs)
+        if imgs.shape[-1] == 3:
+            imgs = imgs.permute(0, 1, 4, 2, 3)  # (B, N, C, H, W)
+
+        # Key must match forward(self, batch) parameter name so model(**sample) works
+        return {'batch': {'images': imgs.to(self.device)}}
+
+    def _run_model(self, images):
+        """Run DVLTModel following _postprocess_predictions. images: (B, S, C, H, W) in [-1, 1]."""
+        from dvlt.common.rays import rays_to_pose
+        from dvlt.common.geometry import depth_to_world_coords_points
+
+        # DVLTModel._encode_images expects [0, 1]
+        images_01 = (images + 1.0) / 2.0
+        H, W = images_01.shape[-2:]
+
+        predictions = self.model.forward_inference(images_01)
+
+        depth = predictions['depth'].squeeze(-1)            # (B, S, H, W)
+        depth_conf = predictions['depth_conf']              # (B, S, H, W)
+
+        # Pose fitting: uniform weights (use_depth_conf_for_pose=False by default)
+        rays = predictions['rays'].float()                  # (B, S, H, W, 6)
+        pose_conf = torch.ones_like(depth_conf).float()
+        with torch.autocast(device_type='cuda', enabled=False):
+            extrinsics_c2w, intrinsics = rays_to_pose(
+                rays, pose_conf, H, W, self.model.patch_size
+            )
+        # extrinsics_c2w: (B, S, 4, 4) c2w,  intrinsics: (B, S, 3, 3)
+
+        # World points via proper unprojection through fitted camera (not ray composition)
+        with torch.autocast(device_type='cuda', enabled=False):
+            world_points, _, _ = depth_to_world_coords_points(
+                depth.float(), extrinsics_c2w, intrinsics.float()
+            )
+        # world_points: (B, S, H, W, 3)
+
+        return {
+            'world_points': world_points.float(),           # (B, S, H, W, 3)
+            'pts3d_by_unprojection': world_points.float(),  # (B, S, H, W, 3)
+            'world_points_conf': depth_conf.float(),        # (B, S, H, W)
+            'depth': depth.float(),                         # (B, S, H, W)
+            'pose': extrinsics_c2w.float(),                 # (B, S, 4, 4)
+        }
+
+    def forward(self, batch):
+        images = batch.get('images') if 'images' in batch else batch.get(self.DataField.IMAGES)
+        return self._run_model(images.to(self.device))
+
+    def output_adapter(self, model_output):
+        depth = model_output['depth'][:, 0].cpu().numpy()  # (B, H, W)
+        return {'depth': depth[None]}, {}
+
+    def run_amb3r_benchmark(self, frames):
+        return self.forward(frames)
+
+    @torch.inference_mode()
+    def run_amb3r_vo(self, frames, cfg, keyframe_memory):
+        return self.forward(frames)
+
+    @torch.inference_mode()
+    def extract_amb3r_sfm_features(self, views):
+        images = views['images'].to(self.device)            # (B, N, 3, H, W) in [-1, 1]
+        images_01 = (images + 1.0) / 2.0                   # -> [0, 1] as DVLTModel expects
+        # _encode_images handles ImageNet normalization internally
+        patch_tokens = self.model._encode_images(images_01) # (B*N, num_patches, C)
         return patch_tokens.mean(dim=1).float()
 
     @torch.inference_mode()

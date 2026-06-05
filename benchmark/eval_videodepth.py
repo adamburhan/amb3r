@@ -20,7 +20,7 @@ def get_args_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument('--data_path', type=str, default="../data/dynamic/")
     parser.add_argument('--results_path', type=str, default="./outputs/videodepth")
-    parser.add_argument('--model_name', type=str, default="amb3r", choices=['amb3r', 'da3'])
+    parser.add_argument('--model_name', type=str, default="amb3r", choices=['amb3r', 'da3', 'omega', 'dvlt'])
     parser.add_argument('--ckpt_path', type=str, default="../checkpoints/amb3r.pt")
     return parser
 
@@ -31,13 +31,20 @@ model.cuda()
 
 os.makedirs(args.results_path, exist_ok=True)
 
+if args.model_name == 'omega':
+    video_res = (512, 384)
+elif args.model_name == 'dvlt':
+    video_res = (378, 504)
+else:
+    video_res = (518, 392)
+
 eval_datasets_all = {
     'sintel': Sintel(ROOT=args.data_path + 'sintel',
-                     resolution=(518, 392), full_video=True, kf_every=1),
+                     resolution=video_res, full_video=True, kf_every=1),
     'bonn': Bonn(ROOT=args.data_path + 'bonn',
-                 resolution=(518, 392), full_video=True, kf_every=1),
+                 resolution=video_res, full_video=True, kf_every=1),
     'kitti': Kitti(ROOT=args.data_path + 'kitti',
-                            resolution=(518, 392), full_video=True, kf_every=1),
+                            resolution=video_res, full_video=True, kf_every=1),
 }
 
 with torch.no_grad():

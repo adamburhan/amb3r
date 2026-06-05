@@ -22,7 +22,7 @@ def get_args_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument('--data_path', type=str, default="../data/pose/re10k_amb3r_split/")
     parser.add_argument('--results_path', type=str, default="./outputs/pose")
-    parser.add_argument('--model_name', type=str, default="amb3r", choices=['amb3r', 'da3', 'omega'])
+    parser.add_argument('--model_name', type=str, default="amb3r", choices=['amb3r', 'da3', 'omega', 'dvlt'])
     parser.add_argument('--ckpt_path', type=str, default="../checkpoints/amb3r.pt")
     return parser
 
@@ -36,7 +36,12 @@ os.makedirs(args.results_path, exist_ok=True)
 
 
 
-pose_size = (512, 288) if args.model_name == 'omega' else (518, 294)
+if args.model_name == 'omega':
+    pose_size = (512, 288)
+elif args.model_name == 'dvlt':
+    pose_size = (504, 280)
+else:
+    pose_size = (518, 294)
 data = Re10kAMB3R(split='test', ROOT=args.data_path,
                 resolution=pose_size)
 dataloader = DataLoader(data, batch_size=1, shuffle=False, num_workers=2)

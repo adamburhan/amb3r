@@ -1,5 +1,3 @@
-
-
 # AMB3R Benchmark
 
 This is the benchmark that supplies AMB3R paper on various 3D reconstruction tasks.
@@ -57,7 +55,7 @@ This is the benchmark that supplies AMB3R paper on various 3D reconstruction tas
       <td align="center">92.7</td>
       <td align="center">3.8</td>
       <td align="center">97.9</td>
-      <td align="center">2.7</td>
+      <td align="center"><strong>2.7</strong></td>
       <td align="center">98.8</td>
       <td align="center">26.9</td>
       <td align="center">79.1</td>
@@ -86,7 +84,20 @@ This is the benchmark that supplies AMB3R paper on various 3D reconstruction tas
       <td align="center">4.5</td>
       <td align="center">97.1</td>
       <td align="center"><strong>24.2</strong></td>
-      <td align="center">82.5</td>
+      <td align="center"><strong>82.5</strong></td>
+    </tr>
+    <tr>
+      <td align="left">Deja-View</td>
+      <td align="center">4.2</td>
+      <td align="center">97.9</td>
+      <td align="center">8.3</td>
+      <td align="center">93.8</td>
+      <td align="center">5.4</td>
+      <td align="center">97.4</td>
+      <td align="center">3.4</td>
+      <td align="center">98.5</td>
+      <td align="center">25.2</td>
+      <td align="center">81.1</td>
     </tr>
     <tr>
       <td align="left"><strong>AMB3R </strong></td>
@@ -130,6 +141,7 @@ python eval_monodepth.py
       <th align="center" style="font-weight: normal;">VGGT</th>
       <th align="center" style="font-weight: normal;">DA3 (NESTEDGIANT)</th>
       <th align="center" style="font-weight: normal;">VGGT-Omega</th>
+      <th align="center" style="font-weight: normal;">Deja-View</th>
       <th align="center"><strong>AMB3R</strong></th>
     </tr>
   </thead>
@@ -137,8 +149,9 @@ python eval_monodepth.py
     <tr>
       <td align="left">mAA_30</td>
       <td align="center">81.8</td>
-      <td align="center"><strong>87.5</strong></td>
-      <td align="center"><strong>87.5</strong></td>
+      <td align="center">87.5</td>
+      <td align="center">87.5</td>
+      <td align="center"><strong>88.9</strong></td>
       <td align="center">86.3</td>
     </tr>
   </tbody>
@@ -235,10 +248,25 @@ python eval_pose.py
       <td align="center">84.2</td>
     </tr>
     <tr>
+      <td align="left">Deja-View</td>
+      <td align="center">3.2</td>
+      <td align="center">69.6</td>
+      <td align="center"><strong>1.8</strong></td>
+      <td align="center">85.5</td>
+      <td align="center">1.9</td>
+      <td align="center">85.8</td>
+      <td align="center">1.7</td>
+      <td align="center">88.3</td>
+      <td align="center">3.0</td>
+      <td align="center">81.1</td>
+      <td align="center">2.3</td>
+      <td align="center">82.1</td>
+    </tr>
+    <tr>
       <td align="left"><strong>AMB3R </strong></td>
       <td align="center"><strong>2.8</strong></td>
       <td align="center"><strong>74.4</strong></td>
-      <td align="center"><strong>1.9</strong></td>
+      <td align="center">1.9</td>
       <td align="center"><strong>85.8</strong></td>
       <td align="center">1.4</td>
       <td align="center">90.9</td>
@@ -349,6 +377,18 @@ python eval_videodepth.py
       <td align="center">6.11</td>
       <td align="center">2.45</td>
       <td align="center">2.52</td>
+    </tr>
+    <tr>
+      <td align="left">Deja-View</td>
+      <td align="center">4.97</td>
+      <td align="center">11.85</td>
+      <td align="center">12.03</td>
+      <td align="center">2.45</td>
+      <td align="center">0.89</td>
+      <td align="center">0.46</td>
+      <td align="center">4.95</td>
+      <td align="center"><strong>1.75</strong></td>
+      <td align="center">2.80</td>
     </tr>
     <tr>
       <td align="left"><strong>AMB3R </strong></td>
@@ -512,6 +552,21 @@ python eval_mvrecon.py
       <td align="center">1.0</td>
       <td align="center">5.1</td>
     </tr>
+    <tr>
+      <td align="left"><strong>AMB3R-VO (Deja-View)</strong></td>
+      <td align="center">&#10007;</td>
+      <td align="center">&#10007;</td>
+      <td align="center">8.0</td>
+      <td align="center">1.9</td>
+      <td align="center">2.0</td>
+      <td align="center">5.7</td>
+      <td align="center">2.3</td>
+      <td align="center">6.0</td>
+      <td align="center">1.9</td>
+      <td align="center">4.1</td>
+      <td align="center">1.1</td>
+      <td align="center">3.7</td>
+    </tr>
   </tbody>
 </table>
 
@@ -539,9 +594,12 @@ python eval_slam.py
       <th rowspan="2" align="left"><strong>Scenes</strong></th>
       <th colspan="2" align="center" style="font-weight: normal;">MASt3R-SfM</th>
       <th colspan="2" align="center"><strong>AMB3R-SfM</strong></th>
-      <th colspan="2" align="center"><strong>AMB3R-SfM (VGGT-omega)</strong></th>
+      <th colspan="2" align="center" style="font-weight: normal;">AMB3R-SfM (VGGT-omega)</th>
+      <th colspan="2" align="center" style="font-weight: normal;">AMB3R-SfM (Deja-View)</th>
     </tr>
     <tr>
+      <th align="center"><strong>RRA@5</strong></th>
+      <th align="center"><strong>RTA@5</strong></th>
       <th align="center"><strong>RRA@5</strong></th>
       <th align="center"><strong>RTA@5</strong></th>
       <th align="center"><strong>RRA@5</strong></th>
@@ -559,6 +617,8 @@ python eval_slam.py
       <td align="center">96.5</td>
       <td align="center"><strong>100.0</strong></td>
       <td align="center"><strong>98.5</strong></td>
+      <td align="center"><strong>100.0</strong></td>
+      <td align="center">91.3</td>
     </tr>
     <tr>
       <td align="left">delivery area</td>
@@ -568,6 +628,8 @@ python eval_slam.py
       <td align="center">76.6</td>
       <td align="center"><strong>100.0</strong></td>
       <td align="center"><strong>92.2</strong></td>
+      <td align="center">34.9</td>
+      <td align="center">40.0</td>
     </tr>
     <tr>
       <td align="left">electro</td>
@@ -577,6 +639,8 @@ python eval_slam.py
       <td align="center">81.2</td>
       <td align="center"><strong>100.0</strong></td>
       <td align="center">94.1</td>
+      <td align="center">91.3</td>
+      <td align="center">80.2</td>
     </tr>
     <tr>
       <td align="left">facade</td>
@@ -586,6 +650,8 @@ python eval_slam.py
       <td align="center">95.4</td>
       <td align="center"><strong>100.0</strong></td>
       <td align="center"><strong>95.7</strong></td>
+      <td align="center">91.4</td>
+      <td align="center">86.8</td>
     </tr>
     <tr>
       <td align="left">kicker</td>
@@ -595,6 +661,8 @@ python eval_slam.py
       <td align="center">99.2</td>
       <td align="center"><strong>100.0</strong></td>
       <td align="center">99.8</td>
+      <td align="center"><strong>100.0</strong></td>
+      <td align="center">99.3</td>
     </tr>
     <tr>
       <td align="left">meadow</td>
@@ -604,6 +672,8 @@ python eval_slam.py
       <td align="center">95.2</td>
       <td align="center"><strong>100.0</strong></td>
       <td align="center"><strong>100.0</strong></td>
+      <td align="center"><strong>100.0</strong></td>
+      <td align="center">97.1</td>
     </tr>
     <tr>
       <td align="left">office</td>
@@ -613,6 +683,8 @@ python eval_slam.py
       <td align="center">53.9</td>
       <td align="center"><strong>100.0</strong></td>
       <td align="center">84.3</td>
+      <td align="center"><strong>100.0</strong></td>
+      <td align="center">74.0</td>
     </tr>
     <tr>
       <td align="left">pipes</td>
@@ -622,6 +694,8 @@ python eval_slam.py
       <td align="center">87.9</td>
       <td align="center"><strong>100.0</strong></td>
       <td align="center">96.7</td>
+      <td align="center"><strong>100.0</strong></td>
+      <td align="center">95.6</td>
     </tr>
     <tr>
       <td align="left">playground</td>
@@ -631,6 +705,8 @@ python eval_slam.py
       <td align="center">62.2</td>
       <td align="center"><strong>100.0</strong></td>
       <td align="center"><strong>98.2</strong></td>
+      <td align="center">99.3</td>
+      <td align="center">78.9</td>
     </tr>
     <tr>
       <td align="left">relief</td>
@@ -640,6 +716,8 @@ python eval_slam.py
       <td align="center">90.1</td>
       <td align="center"><strong>100.0</strong></td>
       <td align="center"><strong>93.8</strong></td>
+      <td align="center"><strong>100.0</strong></td>
+      <td align="center">85.2</td>
     </tr>
     <tr>
       <td align="left">relief 2</td>
@@ -649,6 +727,8 @@ python eval_slam.py
       <td align="center">75.7</td>
       <td align="center"><strong>100.0</strong></td>
       <td align="center"><strong>93.8</strong></td>
+      <td align="center"><strong>100.0</strong></td>
+      <td align="center">93.5</td>
     </tr>
     <tr>
       <td align="left">terrace</td>
@@ -658,6 +738,8 @@ python eval_slam.py
       <td align="center">97.2</td>
       <td align="center"><strong>100.0</strong></td>
       <td align="center">99.2</td>
+      <td align="center"><strong>100.0</strong></td>
+      <td align="center">98.4</td>
     </tr>
     <tr>
       <td align="left">terrains</td>
@@ -667,6 +749,8 @@ python eval_slam.py
       <td align="center">53.8</td>
       <td align="center"><strong>100.0</strong></td>
       <td align="center"><strong>83.9</strong></td>
+      <td align="center">99.3</td>
+      <td align="center">57.8</td>
     </tr>
     <tr>
       <td align="left"><strong>Average</strong></td>
@@ -676,6 +760,8 @@ python eval_slam.py
       <td align="center">81.9</td>
       <td align="center"><strong>100.0</strong></td>
       <td align="center"><strong>94.6</strong></td>
+      <td align="center">93.6</td>
+      <td align="center">82.9</td>
     </tr>
   </tbody>
 </table>

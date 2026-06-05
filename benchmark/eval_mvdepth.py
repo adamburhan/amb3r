@@ -24,7 +24,7 @@ def get_args_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument('--results_path', type=str, default="./outputs/mvdepth")
     parser.add_argument('--metric', action='store_true')
-    parser.add_argument('--model_name', type=str, default="amb3r", choices=['amb3r', 'da3', 'omega'])
+    parser.add_argument('--model_name', type=str, default="amb3r", choices=['amb3r', 'da3', 'omega', 'dvlt'])
     parser.add_argument('--ckpt_path', type=str, default="../checkpoints/amb3r.pt")
     return parser
 
@@ -46,7 +46,12 @@ def main(args):
             alignment=None if metric_scale else 'median',
         )
 
-    eval_size = (384, 512) if args.model_name == 'omega' else (392, 518)
+    if args.model_name == 'omega':
+        eval_size = (384, 512)
+    elif args.model_name == 'dvlt':
+        eval_size = (378, 504)
+    else:
+        eval_size = (392, 518)
 
     with torch.autocast(device_type='cuda', dtype=torch.bfloat16):
         results = evaluation(
