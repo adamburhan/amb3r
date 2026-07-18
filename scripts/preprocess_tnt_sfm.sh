@@ -5,7 +5,7 @@
 #SBATCH --mem=48G
 #SBATCH --time=2:00:00
 #SBATCH --gres=gpu:l40s:1
-#SBATCH --array=0-0
+#SBATCH --array=0-6
 
 sequences=(
     Barn
