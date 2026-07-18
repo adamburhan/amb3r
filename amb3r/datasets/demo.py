@@ -76,7 +76,13 @@ class Demo(BaseManyViewDataset):
                 intrinsics = input_metadata['camera_intrinsics'].astype(np.float32)
             else:
                 cx, cy = rgb_image.shape[1]//2, rgb_image.shape[0]//2
-                intrinsics = np.array([[fx, 0, cx], [0, fy, cy], [0, 0, 1]], dtype=np.float32)
+                #intrinsics = np.array([[fx, 0, cx], [0, fy, cy], [0, 0, 1]], dtype=np.float32)
+                fx, fy, cx, cy = 1344.0, 1344.0, 960.0, 540.0
+                intrinsics = np.array([
+                    [fx, 0, cx],
+                    [0, fy, cy],
+                    [0, 0, 1]
+                ], dtype=np.float32)
 
                 # pseudo camera pose
                 camera_pose = np.eye(4).astype(np.float32)
