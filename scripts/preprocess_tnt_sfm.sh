@@ -3,18 +3,18 @@
 #SBATCH --output=/network/scratch/a/adam.burhan/logs/preprocess_tnt_sfm/%A_%a.out
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=48G
-#SBATCH --time=2:00:00
+#SBATCH --time=5:00:00
 #SBATCH --gres=gpu:l40s:1
-#SBATCH --array=0-6
+#SBATCH --array=0-0
 
 sequences=(
-    Barn
-    Caterpillar
-    Church
+    # Barn
+    # Caterpillar
+    # Church
     Courthouse
-    Ignatius
-    Meetingroom
-    Truck
+    # Ignatius
+    # Meetingroom
+    # Truck
 )
 
 seq=${sequences[$SLURM_ARRAY_TASK_ID]}
