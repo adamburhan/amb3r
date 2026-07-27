@@ -12,8 +12,8 @@ sequences=(
 )
 
 seq=${sequences[$SLURM_ARRAY_TASK_ID]}
-data_root=$SCRATCH/datasets/scannetpp/data/
-data_path=$data_root/$seq/09c1414f1b/iphone/rgb
+data_root=$SCRATCH/datasets/scannetpp/data
+data_path=$data_root/$seq/iphone/rgb
 demo_name=$seq
 results_path=$data_root/amb3r/$seq
 
