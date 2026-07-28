@@ -77,7 +77,7 @@ class Demo(BaseManyViewDataset):
             else:
                 cx, cy = rgb_image.shape[1]//2, rgb_image.shape[0]//2
                 #intrinsics = np.array([[fx, 0, cx], [0, fy, cy], [0, 0, 1]], dtype=np.float32)
-                fx, fy, cx, cy = 1344.0, 1344.0, 960.0, 540.0
+                fx, fy, cx, cy = 1436.12, 1439.4, 945.9822625, 710.95810139
                 intrinsics = np.array([
                     [fx, 0, cx],
                     [0, fy, cy],
