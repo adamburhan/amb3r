@@ -13,7 +13,7 @@ sequences=(
 
 seq=${sequences[$SLURM_ARRAY_TASK_ID]}
 data_root=$SCRATCH/datasets/scannetpp/data
-data_path=$data_root/$seq/iphone/rgb
+data_path=$data_root/$seq/iphone/undistorted/images
 demo_name=$seq
 results_path=$data_root/amb3r/$seq
 
