@@ -96,10 +96,10 @@ def main():
     assert np.allclose(K_all, K_out[None], atol=1e-4), \
         'Per-frame K differs across frames -- transform not constant?!'
 
-   
+    fx,fy,cx,cy = 628.1640036888998, 631.4138825148826, 876.0, 584.0
     
-    K_in = np.array([[1436.12, 0., 945.9822625],
-                        [0., 1439.4, 710.95810139],
+    K_in = np.array([[fx, 0., cx],
+                        [0., fy, cy],
                         [0., 0., 1.]])
 
     (a_x, b_x), (a_y, b_y) = per_axis_affine(K_in, K_out)
