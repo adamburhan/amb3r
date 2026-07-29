@@ -62,6 +62,10 @@ def main():
     _, views_all = batch
     num_frames = views_all['images'].shape[1]
 
+    # single pinhole camera: one K, as applied by the loader (crop-resized to 518x392)
+    K_key = next(k for k in ('camera_intrinsics', 'intrinsics', 'K') if k in views_all)
+    intrinsics = views_all[K_key][0, 0].cpu().numpy()  # (3, 3)
+
 
     scene_idx = args.demo_name
 
@@ -120,6 +124,7 @@ def main():
                 'pts': pts_pred.cpu().numpy(),
                 'conf': conf.cpu().numpy(),
                 'pose': poses_pred.cpu().numpy(),
+                'intrinsics': intrinsics,
                 'images': views_all['images'].cpu().squeeze(0).numpy(),
                 'sky_mask': sky_mask,
                 'kf_idx': np.array(kf_idx),

@@ -1,6 +1,7 @@
 import os
 import re
 import cv2
+import json
 import numpy as np
 import os.path as osp
 
@@ -42,8 +43,19 @@ class Demo(BaseManyViewDataset):
 
         img_idxs = self.sample_frame_idx(img_idxs, rng, full_video=self.full_video)
 
-        # pseudo intrinsics
-        fx, fy = 1.0, 1.0
+        # Per-sequence intrinsics from the ScanNet++ undistorted transforms.
+        # ROOT is .../<seq>/dslr/resized_undistorted_images; the json lives at
+        # .../<seq>/dslr/nerfstudio/transforms_undistorted.json and its
+        # fl_x/fl_y/cx/cy match the 1752x1168 resized_undistorted frames.
+        transforms_path = osp.join(osp.dirname(self.ROOT.rstrip('/')),
+                                   'nerfstudio', 'transforms_undistorted.json')
+        with open(transforms_path, 'r') as f:
+            cam = json.load(f)
+        seq_intrinsics = np.array([
+            [cam['fl_x'], 0,           cam['cx']],
+            [0,           cam['fl_y'], cam['cy']],
+            [0,           0,           1],
+        ], dtype=np.float32)
 
         views = []
         imgs_idxs = deque(img_idxs)
@@ -75,14 +87,9 @@ class Demo(BaseManyViewDataset):
                 camera_pose = input_metadata['camera_pose'].astype(np.float32)
                 intrinsics = input_metadata['camera_intrinsics'].astype(np.float32)
             else:
-                cx, cy = rgb_image.shape[1]//2, rgb_image.shape[0]//2
+                #cx, cy = rgb_image.shape[1]//2, rgb_image.shape[0]//2
                 #intrinsics = np.array([[fx, 0, cx], [0, fy, cy], [0, 0, 1]], dtype=np.float32)
-                fx, fy, cx, cy = 628.1640036888998, 631.4138825148826, 876.0, 584.0
-                intrinsics = np.array([
-                    [fx, 0, cx],
-                    [0, fy, cy],
-                    [0, 0, 1]
-                ], dtype=np.float32)
+                intrinsics = seq_intrinsics.copy()
 
                 # pseudo camera pose
                 camera_pose = np.eye(4).astype(np.float32)

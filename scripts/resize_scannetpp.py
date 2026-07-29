@@ -96,11 +96,14 @@ def main():
     assert np.allclose(K_all, K_out[None], atol=1e-4), \
         'Per-frame K differs across frames -- transform not constant?!'
 
-    fx,fy,cx,cy = 628.1640036888998, 631.4138825148826, 876.0, 584.0
-    
-    K_in = np.array([[fx, 0., cx],
-                        [0., fy, cy],
-                        [0., 0., 1.]])
+    # Per-sequence K_in from the ScanNet++ undistorted transforms, matching the
+    # loader's intrinsics branch (image_dir/../nerfstudio/transforms_undistorted.json).
+    transforms_path = image_dir.parent / 'nerfstudio' / 'transforms_undistorted.json'
+    with open(transforms_path, 'r') as f:
+        cam = json.load(f)
+    K_in = np.array([[cam['fl_x'], 0.,          cam['cx']],
+                     [0.,          cam['fl_y'], cam['cy']],
+                     [0.,          0.,          1.]])
 
     (a_x, b_x), (a_y, b_y) = per_axis_affine(K_in, K_out)
     H_out, W_out = imgs.shape[2], imgs.shape[3]
