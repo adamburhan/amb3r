@@ -13,6 +13,35 @@ from .base_many_view_dataset import BaseManyViewDataset
 def natural_sort_key(s):
     return [int(text) if text.isdigit() else text.lower() for text in re.split(r'(\d+)', s)]
 
+def _load_intrinsics(root):
+    """K for the frames sitting in ROOT, from whichever calibration ships with
+    the dataset. ScanNet++: <seq>/dslr/resized_undistorted_images, K in
+    ../nerfstudio/transforms_undistorted.json (matches the resized frames).
+    ETH3D: <seq>/images/dslr_images_undistorted, K in
+    <seq>/dslr_calibration_undistorted/cameras.txt (matches the full-res ones)."""
+    root = root.rstrip('/')
+
+    scannetpp = osp.join(osp.dirname(root), 'nerfstudio', 'transforms_undistorted.json')
+    if osp.exists(scannetpp):
+        with open(scannetpp) as f:
+            cam = json.load(f)
+        return np.array([[cam['fl_x'], 0, cam['cx']],
+                         [0, cam['fl_y'], cam['cy']],
+                         [0, 0, 1]], dtype=np.float32)
+
+    eth3d = osp.join(osp.dirname(osp.dirname(root)),
+                     'dslr_calibration_undistorted', 'cameras.txt')
+    if osp.exists(eth3d):
+        rows = [l.split() for l in open(eth3d) if l.strip() and not l.startswith('#')]
+        _, model, _, _, *params = rows[0]
+        if model != 'PINHOLE':
+            raise ValueError(f'{eth3d}: model {model}, expected PINHOLE')
+        fx, fy, cx, cy = (float(p) for p in params)
+        return np.array([[fx, 0, cx], [0, fy, cy], [0, 0, 1]], dtype=np.float32)
+
+    raise FileNotFoundError(f'no calibration found for {root}')
+
+
 
 class Demo(BaseManyViewDataset):
     def __init__(self, num_seq=1, num_frames=5, 
@@ -43,19 +72,8 @@ class Demo(BaseManyViewDataset):
 
         img_idxs = self.sample_frame_idx(img_idxs, rng, full_video=self.full_video)
 
-        # Per-sequence intrinsics from the ScanNet++ undistorted transforms.
-        # ROOT is .../<seq>/dslr/resized_undistorted_images; the json lives at
-        # .../<seq>/dslr/nerfstudio/transforms_undistorted.json and its
-        # fl_x/fl_y/cx/cy match the 1752x1168 resized_undistorted frames.
-        transforms_path = osp.join(osp.dirname(self.ROOT.rstrip('/')),
-                                   'nerfstudio', 'transforms_undistorted.json')
-        with open(transforms_path, 'r') as f:
-            cam = json.load(f)
-        seq_intrinsics = np.array([
-            [cam['fl_x'], 0,           cam['cx']],
-            [0,           cam['fl_y'], cam['cy']],
-            [0,           0,           1],
-        ], dtype=np.float32)
+        
+        seq_intrinsics = _load_intrinsics(self.ROOT)
 
         views = []
         imgs_idxs = deque(img_idxs)
