@@ -18,7 +18,8 @@ def _load_intrinsics(root):
     the dataset. ScanNet++: <seq>/dslr/resized_undistorted_images, K in
     ../nerfstudio/transforms_undistorted.json (matches the resized frames).
     ETH3D: <seq>/images/dslr_images_undistorted, K in
-    <seq>/dslr_calibration_undistorted/cameras.txt (matches the full-res ones)."""
+    <seq>/dslr_calibration_undistorted/cameras.txt (matches the full-res ones).
+    T&T ships none, so it falls through to the benchmark's recommended guess."""
     root = root.rstrip('/')
 
     scannetpp = osp.join(osp.dirname(root), 'nerfstudio', 'transforms_undistorted.json')
@@ -39,7 +40,18 @@ def _load_intrinsics(root):
         fx, fy, cx, cy = (float(p) for p in params)
         return np.array([[fx, 0, cx], [0, fy, cy], [0, 0, 1]], dtype=np.float32)
 
-    raise FileNotFoundError(f'no calibration found for {root}')
+    # Tanks & Temples ships no calibration. The benchmark recommends a pinhole
+    # model with fx = fy = 0.7*W and the principal point centred, defined on the
+    # ORIGINAL frame -- _crop_resize_if_necessary carries it to the canonical grid.
+    first = sorted(f for f in os.listdir(root)
+                   if f.lower().endswith(('.jpg', '.jpeg', '.png')))[0]
+    with Image.open(osp.join(root, first)) as im:
+        w, h = im.size
+    print(f'no calibration for {root}: T&T default fx=fy={0.7 * w:.1f} at {w}x{h}')
+    return np.array([[0.7 * w, 0, w / 2],
+                     [0, 0.7 * w, h / 2],
+                     [0, 0,       1]], dtype=np.float32)
+
 
 
 
